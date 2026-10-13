@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Micolink console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0 1rem 2rem; }
+  h1 { font-size: 1.1rem; }
+  h2 { font-size: 0.9rem; margin: 0.2rem 0; }
+  button { cursor: pointer; padding: 0.3rem 0.8rem; }
+  button:disabled { cursor: default; opacity: 0.4; }
+  .ok { color: #0a7d32; font-weight: bold; }
+  #topbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.5rem 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr)); gap: 1rem; }
+  .panel { border: 1px solid #8888; border-radius: 6px; padding: 0.6rem; }
+  table { border-collapse: collapse; min-width: 100%; }
+  td, th { border-bottom: 1px solid #8884; padding: 0.15rem 0.5rem; text-align: left; font-size: 0.88rem; }
+  td.v { font-variant-numeric: tabular-nums; }
+  .form { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 0.6rem; align-items: center; }
+  .form label { font-size: 0.85rem; }
+  .form label.disabled { opacity: 0.35; }
+  .form input, .form select { width: 100%; font-size: 0.85rem; box-sizing: border-box; }
+  .hint { font-size: 0.78rem; opacity: 0.7; grid-column: 1 / 3; }
+  #log { font-family: ui-monospace, monospace; font-size: 0.75rem; height: 14rem; overflow: auto;
+         background: #0002; border-radius: 4px; padding: 0.4rem; }
+  #log .tx { color: #2478b5; }
+  #log .err { color: #b52447; }
+  #log .ok { color: #0a7d32; }
+  #log .rx { opacity: 0.75; }
+</style>
+</head>
+<body>
+<h1>Micolink console</h1>
+
+<div id="topbar">
+  <button id="connect">Connect</button>
+  <button id="disconnect" disabled>Disconnect</button>
+  <select id="baud">
+    <option>9600</option><option>57600</option><option selected value="115200">115200</option>
+    <option>230400</option><option>460800</option><option>500000</option><option>921600</option>
+  </select>
+  <label><input type="checkbox" id="showRaw" checked> raw hex log</label>
+  <span id="connStatus">not connected</span>
+</div>
+
+<div class="grid">
+  <section class="panel">
+    <h2>Device</h2>
+    <table>
+      <tr><th>Product</th><td class="v" id="productName">—</td></tr>
+      <tr><th>Sender type</th><td class="v" id="productType">—</td></tr>
+      <tr><th>Firmware</th><td class="v" id="fwVersion">—</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Telemetry</h2>
+    <table>
+      <tr><th>Distance</th><td class="v" id="tlDistance">—</td></tr>
+      <tr><th>Strength</th><td class="v" id="tlStrength">—</td></tr>
+      <tr><th>Precision</th><td class="v" id="tlPrecision">—</td></tr>
+      <tr><th>Status</th><td class="v" id="tlStatus">—</td></tr>
+      <tr><th>Optical flow</th><td class="v" id="tlFlow">—</td></tr>
+      <tr><th>&nbsp;</th><td class="v" id="tlFlowActual">—</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>PARAM1</h2>
+    <div class="form">
+      <label for="protocol">Protocol</label><select id="protocol"></select>
+      <label for="orientation">Orientation</label><select id="orientation"></select>
+      <label for="flowScale">Flow scale (1..10000)</label><input type="number" id="flowScale" min="1" max="10000" value="500">
+      <label for="tofId">TOF id (0..31)</label><input type="number" id="tofId" min="0" max="31" value="0">
+      <label for="tofFreq">TOF freq</label><select id="tofFreq"></select>
+      <label for="rngfndOrient">TOF orientation</label><select id="rngfndOrient"></select>
+      <label for="ioType">IO type</label><select id="ioType"></select>
+      <label for="inqMode">Inquire</label><select id="inqMode"></select>
+      <label for="mavSysId">MAVLink sys id (1..255)</label><input type="number" id="mavSysId" min="1" max="255" value="1">
+      <div class="hint">Unavailable fields are greyed out from the heartbeat product id.
+      Write does not change the baud rate. After changing protocol, reconnect at the new baud.</div>
+    </div>
+    <p><button id="sendGet" disabled>Read (GET)</button> <button id="sendSet" disabled>Write (SET)</button></p>
+  </section>
+
+  <section class="panel">
+    <h2>Log</h2>
+    <div id="log"></div>
+  </section>
+</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
